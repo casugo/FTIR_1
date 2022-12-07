@@ -1,19 +1,13 @@
----
-  title: "Granulometry Analysis"
-author: "Catalina Suescun"
-date: '2022-11-18'
-output: word_document
----
-  
-  
+# Data Analysis of FTIR
+## Date: 07/12/2022
+
 # Load Libraries
 library(tidyverse)
 library(here)
 library(kableExtra)
 library(ggpubr)
-library(rmarkdown)
 library (dbplyr)
-library(Haven)
+library(haven)
 
 
 
@@ -23,82 +17,26 @@ files <-
   here::here("Data") %>%
   dir( recursive=TRUE, full.names=TRUE, pattern="\\.dat$")
 
-## Creating the Nested dataframe ----
-Granulometry <- files %>%  map( ~ read_dta(.))
-Granulometry <- Granulometry %>%   set_names(files) %>% enframe("Size", "Datos")
 
-## Organising the dataframe
-Granulometry <- 
-  Granulometry %>%  
-  separate(Size,
-           sep = "/",
-           into = c(c(LETTERS[1:13]), c("Sample"))
-  )            %>% 
-  select(-c(LETTERS[1:13]), "Sample", "Datos")
+## Creating a function to transform the data 
+data_trans <- function(path_file, material ){
+  
+  table <- read_delim(file = path_file, skip = 2, delim = " ")
+  x <-table[1] 
+  y <- names(table)[-1]
+  data <- tibble( var_x = x , var_y = y ) %>% 
+    set_names("var_x", "var_y") %>% 
+    mutate(Material = material)
+  
+  return(data)
+}
+
+## Reading teach dataframe -----
+BB <- data_trans(path_file = files[1], "BB" )
+HDPE <- data_trans(path_file = files[3], "HDPE" )
+PET <- data_trans(path_file = files[3], "PET" )
 
 
-## Adusting the Table
-Granulometry <- 
-  Granulometry %>%  
-  separate(Sample, 
-           sep = "_",
-           into = c(c(LETTERS[1:2]))
-  )
-# Changing the names
-colnames(Granulometry) <- c("Material", "Sample", "Datos")
-
-# Unnesting the total dataframe for graphics
-Granulometry <- Granulometry %>% unnest(Datos)
-
-Granulometry <- 
-  Granulometry %>%  
-  separate(X.Area.Mean.StdDev.Min.Max.Perim..Median, 
-           sep = ";",
-           into = c(c(LETTERS[1:8]))
-  ) %>% 
-  select(-c("A","C","D","E","F","G","H"))
-
-# Changing the names
-colnames(Granulometry) <- c( "Material", "Sample", "Area")
-
-#Transform Character columns in numbers
-Granulometry <- transform(Granulometry, Area = as.numeric(Area))
-
-#filtration of the data for size
-Size1.5 <- Granulometry %>%
-  filter(Sample=="1.5mm.csv")
-
-Size3 <- Granulometry %>%
-  filter(Sample=="3mm.csv")
-
-Size5 <- Granulometry %>%
-  filter(Sample=="5mm.csv")
-
-#Ploting size 1.5
-S1.5 = Size1.5$Area
-h = hist (S1.5,col =  "blue", xlab = "Area", ylab= "Number of particles",  main = "Granulometry 1.5mm")
-xfit = seq(min(S1.5), max(S1.5), length= 20)
-yfit = dnorm (xfit, mean = mean(S1.5),sd = sd(S1.5))
-yfit = yfit*diff(h$mids [1:2])* length (S1.5)
-lines (xfit , yfit, col ="red", lwd = 2)
-box()
-
-#Ploting size 3
-
-x = Size3$Area
-h = hist (x,col =  "blue", xlab = "Area", ylab= "Number of particles",  main = "Granulometry 3mm")
-xfit = seq(min(x), max(x), length= 20)
-yfit = dnorm (xfit, mean = mean(x),sd = sd(x))
-yfit = yfit*diff(h$mids [1:2])* length (x)
-lines (xfit , yfit, col ="red", lwd = 3)
-box()
-
-#Ploting size 5
-x = Size5$Area
-h = hist (x,col =  "blue", xlab = "Area", ylab= "Number of particles", main = "Granulometry 5mm")
-xfit = seq(min(x), max(x), length= 20)
-yfit = dnorm (xfit, mean = mean(x),sd = sd(x))
-yfit = yfit*diff(h$mids [1:2])* length (x)
-lines (xfit , yfit, col ="red", lwd = 3)
-box()
+## Joining together the data------
+data <- rbind(BB, HDPE, PET) %>% set_names("Var_x", "Var_Y", "Material" )
 
