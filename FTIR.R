@@ -18,6 +18,12 @@ files <-
   dir( recursive=TRUE, full.names=TRUE, pattern="\\.dat$")
 
 
+### Function to identify the names of the data ----
+names <- 
+  here::here("Data") %>%
+  dir( recursive=TRUE, pattern="\\.dat$")
+
+
 ## Creating a function to transform the data 
 data_trans <- function(path_file, material ){
   
@@ -33,36 +39,88 @@ data_trans <- function(path_file, material ){
   data <- tibble( x , var_y = y ) %>% 
     #set_names("var_x", "var_y") %>% 
     mutate(Material = material)
-  
   return(data)
 }
 
+
 ## Reading teach dataframe -----
-BB <- data_trans(path_file = files[1], "BB" )
-HDPE <- data_trans(path_file = files[3], "HDPE" )
-PET <- data_trans(path_file = files[3], "PET" )
+### BB
+BB1.1 <- data_trans(path_file = files[1], names[1])
+BB1.2 <- data_trans(path_file = files[2], names[2])
+BB1.3 <- data_trans(path_file = files[3], names[3])
+BB2.1 <- data_trans(path_file = files[4], names[4])
+BB2.2 <- data_trans(path_file = files[5], names[5])
+BB3.3 <- data_trans(path_file = files[6], names[6])
+
+### HDPE
+HDPE1.1 <- data_trans(path_file = files[7], names[7])
+HDPE1.2 <- data_trans(path_file = files[8], names[8])
+HDPE1.3 <- data_trans(path_file = files[9], names[9])
+HDPE2.1 <- data_trans(path_file = files[10], names[10])
+HDPE2.2 <- data_trans(path_file = files[11], names[11])
+HDPE3.3 <- data_trans(path_file = files[12], names[12])
+
+### HDPE
+PET1.1 <- data_trans(path_file = files[13], names[13])
+PET1.2 <- data_trans(path_file = files[14], names[14])
+PET1.3 <- data_trans(path_file = files[15], names[15])
+PET2.1 <- data_trans(path_file = files[16],  names[16])
+PET2.2 <- data_trans(path_file = files[17], names[17])
+PET3.3 <- data_trans(path_file = files[18], names[18])
+
 
 
 ## Joining together the data------
-data <- rbind(BB, HDPE, PET) %>% set_names("Var_x", "Var_y", "Material" )
+data <- 
+  rbind(
+    BB1.1,
+    BB1.2,
+    BB1.3,
+    BB2.1,
+    BB2.2,
+    BB3.3,
+    HDPE1.1,
+    HDPE1.2,
+    HDPE1.3,
+    HDPE2.1,
+    HDPE2.2,
+    HDPE3.3,
+    PET1.1,
+    PET1.2,
+    PET1.3,
+    PET2.1,
+    PET2.2,
+    PET3.3
+    )
+  
+## Data
 
+data <- data %>% separate(Material, into = c("Material", "File"), sep = "/")
+
+
+### Obtaining the Max values
+
+Max_values <- data %>% group_by(File) %>% summarise(Max = max ( var_x))
+
+
+### Normalizacion
+Normalizacion <-
+  data %>% left_join(Max_values , by = "File")
+
+
+### Maing the Normalization vector
+
+Normalizacion <- 
+  Normalizacion %>% 
+  mutate( Var_normal = var_x / Max)
 
 
 
 ## Making the Graphic
-data %>% 
-  ggplot(aes( x=var_y*(-1), y=var_x , color = Material)) + 
+Normalizacion %>% 
+  ggplot(aes( x = var_y*(-1), y = Var_normal , color = File)) + 
   geom_line() +
   facet_wrap( ~ Material , ncol=1) 
-  
-  
-
-
-
-
-
-
-
 
 
 
