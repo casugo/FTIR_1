@@ -112,19 +112,47 @@ Normalizacion <-
 
 Normalizacion <- 
   Normalizacion %>% 
-  mutate( Var_normal = var_x / Max)
+  mutate( var_normal = var_x / Max)
 
 
 
 ## Making the Graphic
 Normalizacion %>% 
-  ggplot(aes( x = var_y*(-1), y = Var_normal , color = File)) + 
+  ggplot(aes( x = var_y*(-1), y = Var_normal  , color = File)) + 
   geom_line() +
   facet_wrap( ~ Material , ncol=1) 
 
 
 
 
+## Making a Focus on the Shared Pic
+Normalizacion %>% 
+  ggplot(aes( x = var_y*(-1), y = var_x , color = File)) + 
+  geom_line() +
+  facet_wrap( ~ Material , ncol=1) +
+  coord_cartesian(
+    xlim = c(-725, -700),
+    expand = TRUE,
+    default = FALSE,
+    clip = "on"
+  )
+
+
+### Hipotesis de Media
+
+Mean_graphs <- 
+  Normalizacion %>% 
+  group_by(Material, var_y) %>% 
+  summarise( Mean_var_normal = mean(var_normal) )
+  
+
+
+## Making the Graphic joint
+Mean_graphs %>% 
+  ggplot(aes( x = var_y*(-1), y = Mean_var_normal  , color = Material)) + 
+  geom_line() +
+  coord_cartesian(xlim = c(-755, -700))
+  
 
 
 
