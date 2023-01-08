@@ -131,7 +131,7 @@ Normalizacion %>%
   geom_line() +
   facet_wrap( ~ Material , ncol=1) +
   coord_cartesian(
-    xlim = c(-725, -700),
+    xlim = c(-3000, -500),
     expand = TRUE,
     default = FALSE,
     clip = "on"
@@ -151,12 +151,11 @@ Mean_graphs <-
 Mean_graphs %>% 
   ggplot(aes( x = var_y*(-1), y = Mean_var_normal  , color = Material)) + 
   geom_line() +
-  coord_cartesian(xlim = c(-755, -700)) +
+  coord_cartesian(xlim = c(-3000, -500)) +
   #coord_cartesian(xlim = c(10,18), ylim=c(0,8)) +
   theme_minimal(base_size = 15, base_family = "Palatino") +
-  labs(title="Granulometry analysis of the feedstock material",  
-       subtitle = "Using 3 types of grid" ,
-       y="Frequency", x="Pellet area  [mm2]" ) +
+  labs(title="Fourier Transform Infrared Spectrometry",  
+             y="Absorbance Units", x="Wavenumber  [cm-1]" ) +
   theme(plot.background = element_rect(fill = "white")) 
   
 
