@@ -60,7 +60,7 @@ HDPE2.1 <- data_trans(path_file = files[10], names[10])
 HDPE2.2 <- data_trans(path_file = files[11], names[11])
 HDPE3.3 <- data_trans(path_file = files[12], names[12])
 
-### HDPE
+### PET
 PET1.1 <- data_trans(path_file = files[13], names[13])
 PET1.2 <- data_trans(path_file = files[14], names[14])
 PET1.3 <- data_trans(path_file = files[15], names[15])
@@ -159,7 +159,9 @@ Mean_graphs %>%
   theme(plot.background = element_rect(fill = "white")) 
   
 
+### Saving the Figure
 
+ggsave( here("Figures/FTIR.png") , width = 6, height = 8, dpi="print" )
 
 
 
